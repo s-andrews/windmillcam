@@ -5,20 +5,25 @@ import numpy
 from PIL import Image, ImageFont, ImageDraw
 import datetime
 from pathlib import Path
+from suntime import Sun, SunTimeException
+from datetime import datetime,timedelta, timezone
 
 data_folder = Path("/home/andrewss/Windmill_Images")
+# We use this for getting sunrise and sunset times
+sun = Sun(52.1951,0.1313)
+
 
 def main():
     # We loop forever
     while True:
         # Figure out how many minutes it is until the next sunset
-        mins_to_sunset = get_mins_to_sunset()
+        sunset_time = get_sunset_time()
 
         # Create a folder for today
         todays_folder = create_folder_for_today()
 
         # Capture images
-        capture_images(mins_to_sunset,todays_folder)
+        capture_images(sunset_time,todays_folder)
 
         # Create the video from todays images
         create_video(todays_folder)
@@ -27,8 +32,8 @@ def main():
         sleep_until_sunrise()
 
 
-def get_mins_to_sunset():
-    return 10
+def get_sunset_time():
+    return sun.get_sunset_time()
 
 
 def create_folder_for_today():
@@ -44,11 +49,18 @@ def create_video(folder):
     pass
 
 def sleep_until_sunrise():
-    pass
+    tomorrow_sunrise = sun.get_sunrise_time(datetime.today()+timedelta(days=1))
+    time_to_wait = tomorrow_sunrise - datetime.now(timezone.utc)
+    time.sleep(time_to_wait.total_seconds())
 
 
-def capture_images(minutes,folder):
-    for i in range(minutes):
+
+def capture_images(time_until,folder):
+    while True:
+
+        if datetime.now(timezone.utc) > time_until:
+            break
+
         cam = cv2.VideoCapture(0)
 
         cam.set(cv2.CAP_PROP_FRAME_WIDTH,1280)
