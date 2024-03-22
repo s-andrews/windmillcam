@@ -65,6 +65,12 @@ def create_video(folder):
     if (folder / output_file).exists():
         # The video has already been made for today
         return
+    
+    files = [x for x in folder.glob("*png")]
+    if not files:
+        print("No PNG files, not trying to make video")
+        return
+    
 
     subprocess.run(["ffmpeg", "-framerate", "15", "-pattern_type", "glob", "-i", "*.png", "-c:v", "libx264", "-vf", "fps=15", "-pix_fmt", "yuv420p", output_file], cwd=folder)
 
@@ -117,6 +123,7 @@ def capture_images(time_until,folder):
     while True:
 
         if datetime.now(timezone.utc) > time_until:
+            print("Stopping capture as",datetime.now(timezone.utc),"is later than",time_until)
             break
 
         # Now we can capture the image
@@ -154,6 +161,7 @@ def capture_images(time_until,folder):
 
 
     # When we're finished we shut the camera down
+    print("Shutting down camera")
     cam.release()
 
         
