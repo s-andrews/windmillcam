@@ -25,9 +25,11 @@ def main():
         todays_folder = create_folder_for_today()
 
         # Capture images
+        print("Capturing images until ",sunset_time)
         capture_images(sunset_time,todays_folder)
 
         # Create the video from todays images
+        print("Creating video from images in",todays_folder)
         create_video(todays_folder)
 
         # Upload to youtube?
@@ -40,7 +42,9 @@ def get_sunset_time():
     # We don't want the actual sunset time, we'll go 30 mins
     # beyond that so we get a video which fades to black
 
-    return sun.get_sunset_time()+timedelta(minutes=30)
+    return sun.get_sunset_time(datetime.today()+timedelta(days=1))
+
+    #return sun.get_sunset_time(datetime.today())+timedelta(minutes=30)
 
 
 def create_folder_for_today():
@@ -62,14 +66,16 @@ def create_video(folder):
         # The video has already been made for today
         return
 
-    subprocess.run(["ffmpeg", "-framerate", "15", "-pattern_type", "glob", "-i", "*.png", "-c:v", "libx264", "-vf", "fps=15", "-pix_fmt yuv420p", output_file], cwd=folder)
+    subprocess.run(["ffmpeg", "-framerate", "15", "-pattern_type", "glob", "-i", "*.png", "-c:v", "libx264", "-vf", "fps=15", "-pix_fmt", "yuv420p", output_file], cwd=folder)
 
 def sleep_until_sunrise():
     tomorrow_sunrise = sun.get_sunrise_time(datetime.today()+timedelta(days=1))
+    print("Tomorrows sunrise is at",tomorrow_sunrise)
     time_to_wait = (tomorrow_sunrise - datetime.now(timezone.utc)).total_seconds()
 
     # We want to start the video a bit before the sunrise so we take off 30 mins
     time_to_wait -= (60*30)
+    print("Sleeping for",time_to_wait,"seconds")
 
     time.sleep(time_to_wait)
 
@@ -81,6 +87,7 @@ def capture_images(time_until,folder):
     # we'll leave it running.  Hopefully that will give better
     # consistency in the photos
 
+    print ("Starting camera")
     cam = cv2.VideoCapture(0)
 
     cam.set(cv2.CAP_PROP_FRAME_WIDTH,1280)
@@ -103,6 +110,7 @@ def capture_images(time_until,folder):
 
     # We'll capture and throw away a few images as these also seem
     # to help the camera to settle
+    print("Capturing images to settle camera")
     for _ in range(5):
         cam.read()
 
