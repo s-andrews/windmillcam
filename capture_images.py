@@ -25,11 +25,11 @@ def main():
         todays_folder = create_folder_for_today()
 
         # Capture images
-        print("Capturing images until ",sunset_time)
+        print("Capturing images until ",sunset_time, flush=True)
         capture_images(sunset_time,todays_folder)
 
         # Create the video from todays images
-        print("Creating video from images in",todays_folder)
+        print("Creating video from images in",todays_folder, flush=True)
         create_video(todays_folder)
 
         # Upload to youtube?
@@ -68,7 +68,7 @@ def create_video(folder):
     
     files = [x for x in folder.glob("*png")]
     if not files:
-        print("No PNG files, not trying to make video")
+        print("No PNG files, not trying to make video", flush=True)
         return
     
 
@@ -76,12 +76,12 @@ def create_video(folder):
 
 def sleep_until_sunrise():
     tomorrow_sunrise = sun.get_sunrise_time(datetime.today()+timedelta(days=1))
-    print("Tomorrows sunrise is at",tomorrow_sunrise)
+    print("Tomorrows sunrise is at",tomorrow_sunrise, flush=True)
     time_to_wait = (tomorrow_sunrise - datetime.now(timezone.utc)).total_seconds()
 
     # We want to start the video a bit before the sunrise so we take off 30 mins
     time_to_wait -= (60*30)
-    print("Sleeping for",time_to_wait,"seconds")
+    print("Sleeping for",time_to_wait,"seconds", flush=True)
 
     time.sleep(time_to_wait)
 
@@ -93,7 +93,7 @@ def capture_images(time_until,folder):
     # we'll leave it running.  Hopefully that will give better
     # consistency in the photos
 
-    print ("Starting camera")
+    print ("Starting camera", flush=True)
     cam = cv2.VideoCapture(0)
 
     cam.set(cv2.CAP_PROP_FRAME_WIDTH,1280)
@@ -116,14 +116,14 @@ def capture_images(time_until,folder):
 
     # We'll capture and throw away a few images as these also seem
     # to help the camera to settle
-    print("Capturing images to settle camera")
+    print("Capturing images to settle camera", flush=True)
     for _ in range(5):
         cam.read()
 
     while True:
 
         if datetime.now(timezone.utc) > time_until:
-            print("Stopping capture as",datetime.now(timezone.utc),"is later than",time_until)
+            print("Stopping capture as",datetime.now(timezone.utc),"is later than",time_until, flush=True)
             break
 
         # Now we can capture the image
@@ -139,7 +139,7 @@ def capture_images(time_until,folder):
         font = ImageFont.truetype("/usr/share/fonts/truetype/freefont/FreeMono.ttf",32)
 
         # Get the time in a form suitable for writing to the image
-        date = datetime.now().strftime("%a %d %b %Y %H:%M.%S")
+        date = datetime.now().strftime("%a %d %b %Y %H:%M")
 
         # Get the time in a form suitable for generating a filename
         filename = datetime.now().strftime("%Y_%m_%d_%H.%M.%S.png")
@@ -161,7 +161,7 @@ def capture_images(time_until,folder):
 
 
     # When we're finished we shut the camera down
-    print("Shutting down camera")
+    print("Shutting down camera", flush=True)
     cam.release()
 
         
