@@ -42,7 +42,7 @@ def get_sunset_time():
     # We don't want the actual sunset time, we'll go 30 mins
     # beyond that so we get a video which fades to black
 
-    return sun.get_sunset_time(datetime.today()+timedelta(days=1))
+    return sun.get_sunset_time(datetime.today()+timedelta(days=1))+timedelta(minutes=60)
 
     #return sun.get_sunset_time(datetime.today())+timedelta(minutes=30)
 
@@ -80,7 +80,7 @@ def sleep_until_sunrise():
     time_to_wait = (tomorrow_sunrise - datetime.now(timezone.utc)).total_seconds()
 
     # We want to start the video a bit before the sunrise so we take off 30 mins
-    time_to_wait -= (60*30)
+    time_to_wait -= (60*60)
     print("Sleeping for",time_to_wait,"seconds", flush=True)
 
     time.sleep(time_to_wait)
