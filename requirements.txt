@@ -3,3 +3,4 @@ numpy
 PIL
 suntime
 google-api-python-client
+oauth2client
